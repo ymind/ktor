@@ -6,6 +6,7 @@ package io.ktor.client.tests.utils.tests
 
 import io.ktor.application.*
 import io.ktor.client.tests.utils.*
+import io.ktor.http.*
 import io.ktor.response.*
 import io.ktor.routing.*
 
@@ -16,6 +17,9 @@ internal fun Application.redirectTest() {
                 call.respondRedirect("/redirect/get")
             }
             get("/get") {
+                call.respondText("OK")
+            }
+            post("/post") {
                 call.respondText("OK")
             }
             get("/infinity") {
@@ -54,6 +58,28 @@ internal fun Application.redirectTest() {
             }
             get("/multipleRedirects/user/account/details") {
                 call.respondText("account details")
+            }
+            post("/post-expecting-get-301") {
+                call.response.headers.append(HttpHeaders.Location, "/redirect/get")
+                call.respond(HttpStatusCode.MovedPermanently)
+            }
+            post("/post-expecting-get-302") {
+                call.response.headers.append(HttpHeaders.Location, "/redirect/get")
+                call.respond(HttpStatusCode.Found)
+            }
+            post("/post-expecting-post") {
+                call.response.headers.append(HttpHeaders.Location, "/redirect/post")
+                call.respond(HttpStatusCode.TemporaryRedirect)
+            }
+
+            for(n in 1..10) {
+                get("/count/$n") {
+                    if(n > 1) {
+                        call.respondRedirect("/redirect/count/${n-1}")
+                    } else {
+                        call.respondRedirect("/redirect/get")
+                    }
+                }
             }
         }
     }

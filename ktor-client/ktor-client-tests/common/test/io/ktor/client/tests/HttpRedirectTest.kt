@@ -31,6 +31,33 @@ class HttpRedirectTest : ClientLoader() {
     }
 
     @Test
+    fun rewrittenRedirectTest(): Unit = clientTests {
+        config {
+            install(HttpRedirect) {
+                rewritePostAsGet = true
+            }
+        }
+
+        test { client ->
+            client.post<HttpStatement>("$TEST_URL_BASE/post-expecting-get-301").execute {
+                assertEquals(HttpStatusCode.OK, it.status)
+                assertEquals("OK", it.readText())
+                assertEquals(HttpMethod.Get, it.call.request.method)
+            }
+            client.post<HttpStatement>("$TEST_URL_BASE/post-expecting-get-302").execute {
+                assertEquals(HttpStatusCode.OK, it.status)
+                assertEquals("OK", it.readText())
+                assertEquals(HttpMethod.Get, it.call.request.method)
+            }
+            client.post<HttpStatement>("$TEST_URL_BASE/post-expecting-post").execute {
+                assertEquals(HttpStatusCode.OK, it.status)
+                assertEquals("OK", it.readText())
+                assertEquals(HttpMethod.Post, it.call.request.method)
+            }
+        }
+    }
+
+    @Test
     fun testInfinityRedirect() = clientTests {
         config {
             install(HttpRedirect)
@@ -39,6 +66,26 @@ class HttpRedirectTest : ClientLoader() {
         test { client ->
             assertFails {
                 client.get<HttpResponse>("$TEST_URL_BASE/infinity")
+            }
+        }
+    }
+
+    @Test
+    fun limitedCountRedirectTest() = clientTests {
+        config {
+            install(HttpRedirect) {
+                maximumRedirects = 9
+            }
+        }
+
+        test { client ->
+            assertFails {
+                client.get<HttpResponse>("$TEST_URL_BASE/count/10")
+            }
+
+            client.get<HttpStatement>("$TEST_URL_BASE/count/9").execute {
+                assertEquals(HttpStatusCode.OK, it.status)
+                assertEquals("OK", it.readText())
             }
         }
     }
