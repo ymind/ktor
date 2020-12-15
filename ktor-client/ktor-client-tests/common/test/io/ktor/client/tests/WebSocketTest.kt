@@ -15,22 +15,22 @@ import kotlin.test.*
 class WebSocketTest : ClientLoader() {
     private val skipForWebsockets = listOf("Apache", "Android", "iOS", "Curl", "native:CIO")
 
-//    @Test
-//    fun testEcho() = clientTests(skipForWebsockets) {
-//        config {
-//            install(WebSockets)
-//        }
-//
-//        test { client ->
-//            client.webSocket("$TEST_WEBSOCKET_SERVER/websockets/echo") {
-//                send(Frame.Text("Hello, world"))
-//
-//                val actual = incoming.receive()
-//                assertTrue(actual is Frame.Text)
-//                assertEquals("Hello, world", actual.readText())
-//            }
-//        }
-//    }
+    @Test
+    fun testEcho() = clientTests(skipForWebsockets) {
+        config {
+            install(WebSockets)
+        }
+
+        test { client ->
+            client.webSocket("$TEST_WEBSOCKET_SERVER/websockets/echo") {
+                send(Frame.Text("Hello, world"))
+
+                val actual = incoming.receive()
+                assertTrue(actual is Frame.Text)
+                assertEquals("Hello, world", actual.readText())
+            }
+        }
+    }
 
     @Test
     @Ignore
