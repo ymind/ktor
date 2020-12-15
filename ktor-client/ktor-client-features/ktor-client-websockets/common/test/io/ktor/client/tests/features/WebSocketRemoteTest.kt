@@ -16,6 +16,7 @@ class WebSocketRemoteTest : ClientLoader() {
     private val echoWebsocket = "echo.websocket.org"
 
     @Test
+    @Ignore
     fun testRemotePingPong() = clientTests {
         config {
             install(WebSockets)
@@ -31,6 +32,7 @@ class WebSocketRemoteTest : ClientLoader() {
     }
 
     @Test
+    @Ignore
     fun testSecureRemotePingPong() = clientTests {
         config {
             install(WebSockets)
@@ -46,6 +48,7 @@ class WebSocketRemoteTest : ClientLoader() {
     }
 
     @Test
+    @Ignore
     fun testWithLogging() = clientTests {
         config {
             install(Logging) {
@@ -63,6 +66,7 @@ class WebSocketRemoteTest : ClientLoader() {
     }
 
     @Test
+    @Ignore
     fun testSessionClose() = clientTests {
         config {
             install(WebSockets)
@@ -79,6 +83,7 @@ class WebSocketRemoteTest : ClientLoader() {
     }
 
     @Test
+    @Ignore
     fun testSessionTermination() = clientTests {
         config {
             install(WebSockets)
