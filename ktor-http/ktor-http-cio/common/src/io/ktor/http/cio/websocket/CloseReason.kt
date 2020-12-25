@@ -49,9 +49,7 @@ public data class CloseReason(val code: Short, val message: String) {
         TRY_AGAIN_LATER(1013);
 
         public companion object {
-            private val byCodeMap by lazy {
-                values().associateBy { it.code }
-            }
+            private val byCodeMap = values().associateBy { it.code }
 
             @Deprecated(
                 "Use INTERNAL_ERROR instead.",
