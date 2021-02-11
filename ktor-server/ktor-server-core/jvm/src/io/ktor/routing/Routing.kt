@@ -5,6 +5,8 @@
 package io.ktor.routing
 
 import io.ktor.application.*
+import io.ktor.application.newapi.*
+import io.ktor.application.newapi.InterceptionsHolder.*
 import io.ktor.http.*
 import io.ktor.util.pipeline.*
 import io.ktor.request.*
@@ -17,7 +19,7 @@ import io.ktor.util.*
  */
 public class Routing(
     public val application: Application
-) : Route(parent = null, selector = RootRouteSelector(application.environment.rootPath)) {
+) : Route(parent = null, selector = RootRouteSelector(application.environment.rootPath)), InterceptionsHolder {
     private val tracers = mutableListOf<(RoutingResolveTrace) -> Unit>()
 
     /**
@@ -87,20 +89,29 @@ public class Routing(
         /**
          * Event definition for when a routing-based call processing starts
          */
-        public val RoutingCallStarted: EventDefinition<RoutingApplicationCall> = EventDefinition<RoutingApplicationCall>()
+        public val RoutingCallStarted: EventDefinition<RoutingApplicationCall> =
+            EventDefinition<RoutingApplicationCall>()
+
         /**
          * Event definition for when a routing-based call processing finished
          */
-        public val RoutingCallFinished: EventDefinition<RoutingApplicationCall> = EventDefinition<RoutingApplicationCall>()
+        public val RoutingCallFinished: EventDefinition<RoutingApplicationCall> =
+            EventDefinition<RoutingApplicationCall>()
 
         override val key: AttributeKey<Routing> = AttributeKey("Routing")
 
         override fun install(pipeline: Application, configure: Routing.() -> Unit): Routing {
             val routing = Routing(pipeline).apply(configure)
             pipeline.intercept(Call) { routing.interceptor(this) }
+            routing.callInterceptions.add(CallInterception(Call) {})
             return routing
         }
     }
+
+    // From InterceptionsHolder:
+    override val callInterceptions: MutableList<CallInterception> = mutableListOf()
+    override val receiveInterceptions: MutableList<ReceiveInterception> = mutableListOf()
+    override val sendInterceptions: MutableList<SendInterception> = mutableListOf()
 }
 
 /**

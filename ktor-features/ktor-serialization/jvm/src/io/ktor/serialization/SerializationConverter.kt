@@ -5,6 +5,7 @@
 package io.ktor.serialization
 
 import io.ktor.application.*
+import io.ktor.application.newapi.*
 import io.ktor.features.*
 import io.ktor.http.*
 import io.ktor.http.content.*
@@ -126,7 +127,7 @@ private constructor(
         }
     }
 
-    override suspend fun convertForReceive(context: PipelineContext<ApplicationReceiveRequest, ApplicationCall>): Any? {
+    override suspend fun convertForReceive(context: ReceiveExecution): Any? {
         val request = context.subject
         val channel = request.value as? ByteReadChannel ?: return null
         val charset = context.call.request.contentCharset() ?: defaultCharset
@@ -147,7 +148,7 @@ private constructor(
 
 @Suppress("unused", "CONFLICTING_OVERLOADS")
 @Deprecated("Use json function instead.", level = DeprecationLevel.HIDDEN)
-public fun ContentNegotiation.Configuration.serialization(
+public fun ContentNegotiationConfig.serialization(
     contentType: ContentType = ContentType.Application.Json,
     json: Json = DefaultJson
 ) {

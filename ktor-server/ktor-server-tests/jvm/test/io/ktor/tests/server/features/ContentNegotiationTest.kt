@@ -5,6 +5,7 @@
 package io.ktor.tests.server.features
 
 import io.ktor.application.*
+import io.ktor.application.newapi.*
 import io.ktor.http.content.*
 import io.ktor.features.*
 import io.ktor.http.*
@@ -30,7 +31,7 @@ class ContentNegotiationTest {
             return TextContent("[${value.value}]", contentType.withCharset(context.call.suitableCharset()))
         }
 
-        override suspend fun convertForReceive(context: PipelineContext<ApplicationReceiveRequest, ApplicationCall>): Any? {
+        override suspend fun convertForReceive(context: ReceiveExecution): Any? {
             val type = context.subject.type
             val channel = context.subject.value
             if (type != Wrapper::class || channel !is ByteReadChannel) return null
@@ -48,7 +49,7 @@ class ContentNegotiationTest {
             return TextContent(value.value, contentType.withCharset(context.call.suitableCharset()))
         }
 
-        override suspend fun convertForReceive(context: PipelineContext<ApplicationReceiveRequest, ApplicationCall>): Any? {
+        override suspend fun convertForReceive(context: ReceiveExecution): Any? {
             val type = context.subject.type
             val incoming = context.subject.value
             if (type != Wrapper::class || incoming !is ByteReadChannel) return null
@@ -65,7 +66,7 @@ class ContentNegotiationTest {
             fail("This converter should be never started for send")
         }
 
-        override suspend fun convertForReceive(context: PipelineContext<ApplicationReceiveRequest, ApplicationCall>): Any? {
+        override suspend fun convertForReceive(context: ReceiveExecution): Any? {
             fail("This converter should be never started for receive")
         }
     }

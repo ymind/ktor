@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.util.*
 import com.fasterxml.jackson.databind.*
 import com.fasterxml.jackson.module.kotlin.*
 import io.ktor.application.*
+import io.ktor.application.newapi.*
 import io.ktor.http.content.*
 import io.ktor.features.*
 import io.ktor.http.*
@@ -36,7 +37,7 @@ public class JacksonConverter(private val objectmapper: ObjectMapper = jacksonOb
         return TextContent(objectmapper.writeValueAsString(value), contentType.withCharset(context.call.suitableCharset()))
     }
 
-    override suspend fun convertForReceive(context: PipelineContext<ApplicationReceiveRequest, ApplicationCall>): Any? {
+    override suspend fun convertForReceive(context: ReceiveExecution): Any? {
         val request = context.subject
         val type = request.type
         val value = request.value as? ByteReadChannel ?: return null
@@ -48,7 +49,7 @@ public class JacksonConverter(private val objectmapper: ObjectMapper = jacksonOb
 /**
  * Register Jackson converter into [ContentNegotiation] feature
  */
-public fun ContentNegotiation.Configuration.jackson(contentType: ContentType = ContentType.Application.Json,
+public fun ContentNegotiationConfig.jackson(contentType: ContentType = ContentType.Application.Json,
                                              block: ObjectMapper.() -> Unit = {}) {
     val mapper = jacksonObjectMapper()
     mapper.apply {

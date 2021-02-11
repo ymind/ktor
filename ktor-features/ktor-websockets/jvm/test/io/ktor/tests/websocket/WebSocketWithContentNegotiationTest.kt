@@ -5,6 +5,7 @@
 package io.ktor.tests.websocket
 
 import io.ktor.application.*
+import io.ktor.application.newapi.*
 import io.ktor.features.*
 import io.ktor.http.*
 import io.ktor.http.cio.websocket.Frame
@@ -28,7 +29,7 @@ class WebSocketWithContentNegotiationTest {
                     value: Any
                 ): Any? = fail("convertForSend shouldn't be invoked")
 
-                override suspend fun convertForReceive(context: PipelineContext<ApplicationReceiveRequest, ApplicationCall>): Any? {
+                override suspend fun convertForReceive(context: ReceiveExecution): Any? {
                     fail("convertForReceive shouldn't be invoked")
                 }
             }
