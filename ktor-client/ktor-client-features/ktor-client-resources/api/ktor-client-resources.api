@@ -1,0 +1,9 @@
+public final class io/ktor/client/features/resources/Resources : io/ktor/client/features/HttpClientFeature {
+	public static final field INSTANCE Lio/ktor/client/features/resources/Resources;
+	public fun getKey ()Lio/ktor/util/AttributeKey;
+	public fun install (Lio/ktor/resources/common/Resources;Lio/ktor/client/HttpClient;)V
+	public synthetic fun install (Ljava/lang/Object;Lio/ktor/client/HttpClient;)V
+	public fun prepare (Lkotlin/jvm/functions/Function1;)Lio/ktor/resources/common/Resources;
+	public synthetic fun prepare (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+}
+
