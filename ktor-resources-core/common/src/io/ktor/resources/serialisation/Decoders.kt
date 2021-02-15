@@ -91,7 +91,9 @@ internal class ParametersDecoder(
         val enumName = decodeString()
         val index = enumDescriptor.getElementIndex(enumName)
         if (index == CompositeDecoder.UNKNOWN_NAME) {
-            throw ResourceRoutingException("${enumDescriptor.serialName} does not contain element with name '$enumName'")
+            throw ResourceRoutingException(
+                "${enumDescriptor.serialName} does not contain element with name '$enumName'"
+            )
         }
         return index
     }
@@ -163,7 +165,9 @@ private class ListLikeDecoder(
         val enumName = decodeString()
         val index = enumDescriptor.getElementIndex(enumName)
         if (index == CompositeDecoder.UNKNOWN_NAME) {
-            throw ResourceRoutingException("${enumDescriptor.serialName} does not contain element with name '$enumName'")
+            throw ResourceRoutingException(
+                "${enumDescriptor.serialName} does not contain element with name '$enumName'"
+            )
         }
         return index
     }
