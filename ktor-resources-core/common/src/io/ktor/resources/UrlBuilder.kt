@@ -13,16 +13,15 @@ import kotlinx.serialization.modules.*
 @OptIn(ExperimentalSerializationApi::class)
 public inline fun <reified T> href(
     resourcesFormat: ResourcesFormat,
-    resource: T
-): String {
+    resource: T,
+    urlBuilder: URLBuilder
+) {
     val serializer = serializer<T>()
     val parameters = resourcesFormat.encodeToParameters(serializer, resource)
     val pathPattern = resourcesFormat.encodeToPathPattern(serializer)
 
     val usedForPathParameterNames = mutableSetOf<String>()
     val pathParts = pathPattern.split("/")
-
-    val urlBuilder = URLBuilder()
 
     val updatedParts = pathParts.flatMap {
         if (!it.startsWith('{') || !it.endsWith('}')) return@flatMap listOf(it)
@@ -60,6 +59,14 @@ public inline fun <reified T> href(
 
     val queryArgs = parameters.filter { key, _ -> !usedForPathParameterNames.contains(key) }
     urlBuilder.parameters.appendAll(queryArgs)
+}
 
+@OptIn(ExperimentalSerializationApi::class)
+public inline fun <reified T> href(
+    resourcesFormat: ResourcesFormat,
+    resource: T,
+): String {
+    val urlBuilder = URLBuilder()
+    href(resourcesFormat, resource, urlBuilder)
     return urlBuilder.build().fullPath
 }
