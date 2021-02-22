@@ -75,7 +75,7 @@ public class HttpRedirect {
 
                 requestBuilder = HttpRequestBuilder().apply {
                     takeFromWithExecutionContext(requestBuilder)
-                    url.parameters.clear()
+                    url.encodedParameters.clear()
 
                     location?.let { url.takeFrom(it) }
 

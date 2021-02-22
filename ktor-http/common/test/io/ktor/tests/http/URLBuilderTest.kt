@@ -176,6 +176,14 @@ internal class URLBuilderTest {
     @Test
     fun testSurrogateInPath() {
         val url = URLBuilder("http://www.ktor.io/path/🐕")
+        assertEquals("/path/🐕", url.encodedPath)
+    }
+
+    @Test
+    fun testSurrogateInPathNotEncoded() {
+        val url = URLBuilder().apply {
+            appendPathSegments(listOf("path", "🐕"))
+        }
         assertEquals("/path/%F0%9F%90%95", url.encodedPath)
     }
 

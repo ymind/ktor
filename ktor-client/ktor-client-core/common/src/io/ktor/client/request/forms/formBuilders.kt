@@ -24,7 +24,7 @@ public suspend inline fun <reified T> HttpClient.submitForm(
 ): T = request {
     if (encodeInQuery) {
         method = HttpMethod.Get
-        url.parameters.appendAll(formParameters)
+        url.appendQueryParameters(formParameters)
     } else {
         method = HttpMethod.Post
         body = FormDataContent(formParameters)

@@ -54,7 +54,7 @@ class OAuth2Test {
         clientId = "clientId1",
         clientSecret = "clientSecret1",
         authorizeUrlInterceptor = {
-            parameters.append("custom", "value1")
+            appendQueryParameter("custom", "value1")
         }
     )
 
@@ -78,7 +78,7 @@ class OAuth2Test {
             true -> HttpMethod.Post
         },
         accessTokenInterceptor = {
-            url.parameters.remove("state")
+            url.removeQueryParameter("state")
 
             if (method == HttpMethod.Post) {
                 body = runBlocking {
@@ -450,7 +450,7 @@ class OAuth2Test {
                         DefaultSettings,
                         "http://localhost/login",
                         "/",
-                        { url.parameters["badContentType"] = "true" }
+                        { url.encodedParameters["badContentType"] = "true" }
                     ) { token ->
                         call.respondText("Ho, $token")
                     }
@@ -486,7 +486,7 @@ class OAuth2Test {
                         DefaultSettings,
                         "http://localhost/login",
                         "/",
-                        { url.parameters["respondHttpStatus"] = "500" }
+                        { url.encodedParameters["respondHttpStatus"] = "500" }
                     ) { token ->
                         call.respondText("Ho, $token")
                     }
@@ -520,7 +520,7 @@ class OAuth2Test {
                         DefaultSettings,
                         "http://localhost/login",
                         "/",
-                        { url.parameters["respondHttpStatus"] = "404" }
+                        { url.encodedParameters["respondHttpStatus"] = "404" }
                     ) { token ->
                         call.respondText("Ho, $token")
                     }

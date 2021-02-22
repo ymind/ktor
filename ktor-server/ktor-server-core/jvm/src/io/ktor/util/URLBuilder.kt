@@ -20,7 +20,7 @@ public fun URLBuilder.Companion.createFromCall(call: ApplicationCall): URLBuilde
     builder.host = origin.host.substringBefore(":")
     builder.port = origin.port
     builder.encodedPath = call.request.path()
-    builder.parameters.appendAll(call.request.queryParameters)
+    builder.appendQueryParameters(call.request.queryParameters)
 
     return builder
 }

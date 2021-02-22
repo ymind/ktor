@@ -15,7 +15,7 @@ class DefaultPushTest {
         withTestApplication {
             application.intercept(ApplicationCallPipeline.Call) {
                 call.push {
-                    url.path("push")
+                    url.pathSegments = listOf("push")
                 }
             }
 
@@ -30,10 +30,10 @@ class DefaultPushTest {
         withTestApplication {
             application.intercept(ApplicationCallPipeline.Call) {
                 call.push {
-                    url.path("push")
+                    url.pathSegments = listOf("push")
                 }
                 call.push {
-                    url.path("push2")
+                    url.pathSegments = listOf("push2")
                 }
             }
 

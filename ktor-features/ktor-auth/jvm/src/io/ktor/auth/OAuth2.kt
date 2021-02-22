@@ -133,16 +133,16 @@ private suspend fun ApplicationCall.redirectAuthenticateOAuth2(
 ) {
     val url = URLBuilder()
     url.takeFrom(URI(authenticateUrl))
-    url.parameters.apply {
-        append(OAuth2RequestParameters.ClientId, clientId)
-        append(OAuth2RequestParameters.RedirectUri, callbackRedirectUrl)
+    url.apply {
+        appendQueryParameter(OAuth2RequestParameters.ClientId, clientId)
+        appendQueryParameter(OAuth2RequestParameters.RedirectUri, callbackRedirectUrl)
         if (scopes.isNotEmpty()) {
-            append(OAuth2RequestParameters.Scope, scopes.joinToString(" "))
+            appendQueryParameter(OAuth2RequestParameters.Scope, scopes.joinToString(" "))
         }
-        append(OAuth2RequestParameters.State, state)
-        append(OAuth2RequestParameters.ResponseType, "code")
+        appendQueryParameter(OAuth2RequestParameters.State, state)
+        appendQueryParameter(OAuth2RequestParameters.ResponseType, "code")
         parameters.forEach { (k, v) ->
-            append(k, v)
+            appendQueryParameter(k, v)
         }
     }
     interceptor(url)
@@ -189,16 +189,16 @@ private suspend fun oauth2RequestAccessToken(
         extraParameters.forEach { (k, v) ->
             append(k, v)
         }
-    }
+    }.build()
 
     when (method) {
-        HttpMethod.Get -> request.url.parameters.appendAll(urlParameters)
+        HttpMethod.Get -> request.url.appendQueryParameters(urlParameters)
         HttpMethod.Post -> {
             if (passParamsInURL) {
-                request.url.parameters.appendAll(urlParameters)
+                request.url.appendQueryParameters(urlParameters)
             } else {
                 request.body = TextContent(
-                    urlParameters.build().formUrlEncode(),
+                    urlParameters.formUrlEncode(),
                     ContentType.Application.FormUrlEncoded
                 )
             }

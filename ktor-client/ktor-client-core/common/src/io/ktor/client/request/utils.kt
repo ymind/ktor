@@ -70,7 +70,7 @@ public fun HttpRequestBuilder.cookie(
  * form parameters in the body.
  */
 public fun HttpRequestBuilder.parameter(key: String, value: Any?): Unit =
-    value?.let { url.parameters.append(key, it.toString()) } ?: Unit
+    value?.let { url.appendQueryParameter(key, it.toString()) } ?: Unit
 
 /**
  * Sets the `Accept` header with a specific [contentType].

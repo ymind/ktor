@@ -65,7 +65,7 @@ internal class BackwardCompatibleImpl(
         val info = pathAndQuery(location)
         builder.encodedPath = info.path
         for ((name, value) in info.query) {
-            builder.parameters.append(name, value)
+            builder.appendQueryParameter(name, value)
         }
     }
 

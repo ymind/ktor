@@ -109,7 +109,7 @@ class UrlTest {
     fun testEncoding() {
         val urlBuilder = {
             URLBuilder("http://httpbin.org/response-headers").apply {
-                parameters.append("message", "foo%bar")
+                appendQueryParameter("message", "foo%bar")
             }
         }
 
@@ -126,6 +126,17 @@ class UrlTest {
         val urlString =
             "https://akamai.bintray.com/22/225b067044aa56f36590ef56d41e256cd1d0887b176bfdeec123ecccc6057790" +
                 "?__gda__=exp=1604350711~hmac=417cbd5a97b4c499e2cf7e9eae5dfb9ad95b42cb3ff76c5fb0fae70e2a42db9c&..."
+
+        val url = URLBuilder().apply {
+            takeFrom(urlString)
+        }.build()
+
+        assertEquals(urlString, url.toString())
+    }
+
+    @Test
+    fun testEncodedEqualsInQueryValue() {
+        val urlString = "https://test.net/path?param=attachment%3Bfilename%3D%22Forge"
 
         val url = URLBuilder().apply {
             takeFrom(urlString)
@@ -168,7 +179,11 @@ class UrlTest {
         fun testPort(n: Int) {
             assertEquals(
                 n,
-                Url(URLProtocol.HTTP, "localhost", n, "/", parametersOf(), "", null, null, false).specifiedPort
+                URLBuilder().apply {
+                    protocol = URLProtocol.HTTP
+                    host = "localhost"
+                    port = n
+                }.build().specifiedPort
             )
         }
 
