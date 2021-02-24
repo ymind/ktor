@@ -104,6 +104,10 @@ public interface HttpClientEngineFactory<out T : HttpClientEngineConfig> {
     public fun create(block: T.() -> Unit = {}): HttpClientEngine
 }
 
+public expect object DefaultHttpClientEngineFactory : HttpClientEngineFactory<HttpClientEngineConfig> {
+    override fun create(block: HttpClientEngineConfig.() -> Unit): HttpClientEngine
+}
+
 /**
  * Creates a new [HttpClientEngineFactory] based on this one
  * with further configurations from the [nested] block.

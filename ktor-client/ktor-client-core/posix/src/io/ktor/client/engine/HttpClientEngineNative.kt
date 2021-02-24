@@ -4,6 +4,7 @@
 
 package io.ktor.client.engine
 
+import io.ktor.client.*
 import io.ktor.util.*
 import io.ktor.utils.io.*
 import kotlinx.coroutines.*
@@ -28,3 +29,10 @@ internal actual suspend fun HttpClientEngine.createCallContext(parentJob: Job): 
 }
 
 private suspend inline fun functionContext(): CoroutineContext = coroutineContext
+
+public actual object DefaultHttpClientEngineFactory : HttpClientEngineFactory<HttpClientEngineConfig> {
+    actual override fun create(block: HttpClientEngineConfig.() -> Unit): HttpClientEngine {
+        return engines.firstOrNull()?.create(block) ?: error(
+            "Failed to find HttpClientEngineContainer. Consider adding [HttpClientEngine] implementation in dependencies."
+    }
+}

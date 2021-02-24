@@ -18,7 +18,7 @@ import java.util.*
  */
 public actual fun HttpClient(
     block: HttpClientConfig<*>.() -> Unit
-): HttpClient = HttpClient(FACTORY, block)
+): HttpClient = HttpClient(DEFAULT_FACTORY, block)
 
 /**
  * A container is searched across dependencies using [ServiceLoader] to find client implementations.
@@ -39,7 +39,7 @@ private val engines: List<HttpClientEngineContainer> = HttpClientEngineContainer
     ServiceLoader.load(it, it.classLoader).toList()
 }
 
-private val FACTORY = engines.firstOrNull()?.factory ?: error(
+internal val DEFAULT_FACTORY: HttpClientEngineFactory<*> = engines.firstOrNull()?.factory ?: error(
     "Failed to find HTTP client engine implementation in the classpath: consider adding client engine dependency. " +
         "See https://ktor.io/clients/http-client/engines.html"
 )

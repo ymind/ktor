@@ -4,6 +4,7 @@
 
 package io.ktor.client.engine
 
+import io.ktor.client.engine.js.*
 import kotlinx.coroutines.*
 import kotlin.coroutines.*
 
@@ -19,4 +20,10 @@ internal actual suspend fun HttpClientEngine.createCallContext(parentJob: Job): 
     attachToUserJob(callJob)
 
     return callContext
+}
+
+public actual object DefaultHttpClientEngineFactory : HttpClientEngineFactory<HttpClientEngineConfig> {
+    actual override fun create(block: HttpClientEngineConfig.() -> Unit): HttpClientEngine {
+        return Js.create(block)
+    }
 }

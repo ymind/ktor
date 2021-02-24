@@ -29,6 +29,7 @@ import java.security.*
 import java.util.concurrent.*
 import javax.net.ssl.*
 import kotlin.concurrent.*
+import kotlin.contracts.*
 import kotlin.coroutines.*
 import kotlin.test.*
 
@@ -270,6 +271,8 @@ public abstract class EngineTestBase<TEngine : ApplicationEngine, TConfiguration
     }
 
     protected inline fun socket(block: Socket.() -> Unit) {
+        contract { callsInPlace(block, InvocationKind.EXACTLY_ONCE) }
+
         Socket().use { socket ->
             socket.tcpNoDelay = true
             socket.soTimeout = socketReadTimeout
