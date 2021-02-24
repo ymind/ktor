@@ -5,6 +5,7 @@
 package io.ktor.server.benchmarks
 
 import io.ktor.client.*
+import io.ktor.client.call.*
 import io.ktor.client.engine.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -51,7 +52,7 @@ class KtorBenchmarkClient(val engineFactory: HttpClientEngineFactory<*>) : Async
 
         GlobalScope.launch(Dispatchers.IO + parent) {
             try {
-                httpClient!!.get<HttpStatement>(url).execute { response ->
+                httpClient!!.prepareGet(url).execute { response ->
                     val content = response.content
                     val buffer = ByteBuffer.allocate(1024)
                     while (!content.isClosedForRead) {

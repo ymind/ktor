@@ -4,6 +4,7 @@
 
 package io.ktor.client.tests
 
+import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.tests.utils.*
 import io.ktor.utils.io.*
@@ -28,7 +29,7 @@ class BenchmarkTest : ClientLoader() {
     @Test
     fun testDownload() = clientTests {
         test { client ->
-            val data = client.get<ByteArray>("$TEST_BENCHMARKS_SERVER/bytes?size=$size")
+            val data = client.get("$TEST_BENCHMARKS_SERVER/bytes?size=$size").body<ByteArray>()
             check(data.size == size * 1024)
         }
     }
@@ -36,9 +37,9 @@ class BenchmarkTest : ClientLoader() {
     @Test
     fun testUpload() = clientTests {
         test { client ->
-            val uploaded = client.post<String>("$TEST_BENCHMARKS_SERVER/bytes") {
-                body = testData[size]!!
-            }
+            val uploaded = client.post("$TEST_BENCHMARKS_SERVER/bytes") {
+                setBody(testData[size]!!)
+            }.body<String>()
             check(uploaded.toInt() == size * 1024) { "Expected ${size * 1024}, got $uploaded" }
         }
     }
@@ -46,9 +47,9 @@ class BenchmarkTest : ClientLoader() {
     @Test
     fun testEchoStream() = clientTests {
         test { client ->
-            val uploaded = client.post<ByteArray>("$TEST_BENCHMARKS_SERVER/echo") {
-                body = testData[size]!!
-            }
+            val uploaded = client.post("$TEST_BENCHMARKS_SERVER/echo") {
+                setBody(testData[size]!!)
+            }.body<ByteArray>()
 
             check(uploaded.size == size * 1024) { "Expected ${size * 1024}, got ${uploaded.size}" }
         }
@@ -57,13 +58,13 @@ class BenchmarkTest : ClientLoader() {
     @Test
     fun testEchoStreamChain() = clientTests {
         test { client ->
-            val stream = client.post<ByteReadChannel>("$TEST_BENCHMARKS_SERVER/echo") {
-                body = testData[size]!!
-            }
+            val stream = client.post("$TEST_BENCHMARKS_SERVER/echo") {
+                setBody(testData[size]!!)
+            }.body<ByteReadChannel>()
 
-            val result = client.post<ByteArray>("$TEST_BENCHMARKS_SERVER/echo") {
-                body = stream
-            }
+            val result = client.post("$TEST_BENCHMARKS_SERVER/echo") {
+                setBody(stream)
+            }.body<ByteArray>()
 
             check(result.size == size * 1024) { "Expected ${size * 1024}, got ${result.size}" }
         }
