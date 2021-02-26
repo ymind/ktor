@@ -520,6 +520,8 @@ internal open class ByteBufferChannel(
         var currentMax = max
 
         do {
+            closedCause?.let { rethrowClosed(it) }
+
             var part = 0
             val count = reading {
                 val dstSize = dst.writeRemaining
@@ -542,6 +544,7 @@ internal open class ByteBufferChannel(
             currentMax -= part
         } while (count && dst.canWrite() && state.capacity.availableForRead > 0)
 
+        closedCause?.let { rethrowClosed(it) }
         return currentConsumed
     }
 
@@ -2122,7 +2125,6 @@ internal open class ByteBufferChannel(
     }
 
     override suspend fun readRemaining(limit: Long, headerSizeHint: Int): ByteReadPacket = if (isClosedForWrite) {
-        closedCause?.let { throw it }
         remainingPacket(limit, headerSizeHint)
     } else {
         readRemainingSuspend(limit, headerSizeHint)
@@ -2130,15 +2132,13 @@ internal open class ByteBufferChannel(
 
     private fun remainingPacket(limit: Long, headerSizeHint: Int): ByteReadPacket = buildPacket(headerSizeHint) {
         var remaining = limit
-        writeWhile { buffer ->
-            if (buffer.writeRemaining.toLong() > remaining) {
-                buffer.resetForWrite(remaining.toInt())
-            }
 
-            val rc = readAsMuchAsPossible(buffer)
-            remaining -= rc
-            remaining > 0L && !isClosedForRead
-        }
+        do {
+            closedCause?.let { rethrowClosed(it) }
+            remaining -= readAvailableChunkTo(this@buildPacket, remaining.toInt())
+        } while (remaining > 0L && !isClosedForRead)
+
+        closedCause?.let { rethrowClosed(it) }
     }
 
     private suspend fun readRemainingSuspend(
@@ -2146,16 +2146,22 @@ internal open class ByteBufferChannel(
         headerSizeHint: Int
     ): ByteReadPacket = buildPacket(headerSizeHint) {
         var remaining = limit
-        writeWhile { buffer ->
-            if (buffer.writeRemaining.toLong() > remaining) {
-                buffer.resetForWrite(remaining.toInt())
-            }
 
-            val rc = readAsMuchAsPossible(buffer)
-            remaining -= rc
+        do {
+            closedCause?.let { rethrowClosed(it) }
+            remaining -= readAvailableChunkTo(this@buildPacket, remaining.toInt())
             readSuspend(1)
-            remaining > 0L && !isClosedForRead
+        } while (remaining > 0L && !isClosedForRead)
+
+        closedCause?.let { rethrowClosed(it) }
+    }
+
+    private fun readAvailableChunkTo(output: BytePacketBuilder, limit: Int): Int = output.write(1) { buffer ->
+        if (buffer.writeRemaining.toLong() > limit) {
+            buffer.resetForWrite(limit)
         }
+
+        readAsMuchAsPossible(buffer)
     }
 
     private fun resumeReadOp() {
