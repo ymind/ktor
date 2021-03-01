@@ -10,6 +10,9 @@ import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.modules.*
 
+/**
+ * Format to (de)serialize resources instances
+ */
 @OptIn(ExperimentalSerializationApi::class)
 public class ResourcesFormat(
     override val serializersModule: SerializersModule = EmptySerializersModule

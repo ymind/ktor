@@ -5,6 +5,7 @@
 package io.ktor.resources
 
 import io.ktor.application.*
+import io.ktor.http.*
 import io.ktor.util.*
 import io.ktor.resources.common.Resources as ResourcesCore
 
@@ -21,6 +22,20 @@ public object Resources : ApplicationFeature<Application, ResourcesCore.Configur
     }
 }
 
+/**
+ * Constructs the url for [resource].
+ *
+ * The class of [resource] instance **must** be annotated with [Resource].
+ */
 public inline fun <reified T : Any> Application.href(resource: T): String {
     return href(feature(Resources).resourcesFormat, resource)
+}
+
+/**
+ * Constructs the url for [resource].
+ *
+ * The class of [resource] instance **must** be annotated with [Resource].
+ */
+public inline fun <reified T : Any> Application.href(resource: T, urlBuilder: URLBuilder) {
+    href(feature(Resources).resourcesFormat, resource, urlBuilder)
 }

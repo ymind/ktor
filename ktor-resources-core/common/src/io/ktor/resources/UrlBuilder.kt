@@ -10,6 +10,11 @@ import io.ktor.util.*
 import kotlinx.serialization.*
 import kotlinx.serialization.modules.*
 
+/**
+ * Constructs the url for [resource].
+ *
+ * The class of [resource] instance **must** be annotated with [Resource].
+ */
 @OptIn(ExperimentalSerializationApi::class)
 public inline fun <reified T> href(
     resourcesFormat: ResourcesFormat,
@@ -61,6 +66,11 @@ public inline fun <reified T> href(
     urlBuilder.parameters.appendAll(queryArgs)
 }
 
+/**
+ * Constructs the url for [resource].
+ *
+ * The class of [resource] instance **must** be annotated with [Resource].
+ */
 @OptIn(ExperimentalSerializationApi::class)
 public inline fun <reified T> href(
     resourcesFormat: ResourcesFormat,

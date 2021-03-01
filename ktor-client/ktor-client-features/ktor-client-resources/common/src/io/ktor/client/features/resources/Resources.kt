@@ -6,7 +6,10 @@ package io.ktor.client.features.resources
 
 import io.ktor.client.*
 import io.ktor.client.features.*
+import io.ktor.http.*
+import io.ktor.resources.*
 import io.ktor.util.*
+import io.ktor.client.features.get as getFeature
 import io.ktor.resources.common.Resources as ResourcesCore
 
 /**
@@ -24,4 +27,22 @@ public object Resources : HttpClientFeature<ResourcesCore.Configuration, Resourc
     override fun install(feature: ResourcesCore, scope: HttpClient) {
         // no op
     }
+}
+
+/**
+ * Constructs the url for [resource].
+ *
+ * The class of [resource] instance **must** be annotated with [Resource].
+ */
+public inline fun <reified T : Any> HttpClient.href(resource: T): String {
+    return href(getFeature(Resources).resourcesFormat, resource)
+}
+
+/**
+ * Constructs the url for [resource].
+ *
+ * The class of [resource] instance **must** be annotated with [Resource].
+ */
+public inline fun <reified T : Any> HttpClient.href(resource: T, urlBuilder: URLBuilder) {
+    href(getFeature(Resources).resourcesFormat, resource, urlBuilder)
 }
