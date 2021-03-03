@@ -61,6 +61,7 @@ public open class Buffer(public val memory: Memory) {
     public var limit: Int
         get() = bufferState.limit
         private set(value) {
+            check(value >= 0) { "FUCK" }
             bufferState.limit = value
         }
 

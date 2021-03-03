@@ -389,7 +389,6 @@ internal open class ByteBufferChannel(
     }
 
     private fun tryCompleteJoining(joined: JoiningState): Boolean {
-        if (!tryReleaseBuffer(true)) return false
         ensureClosedJoined(joined)
 
         resumeReadOp { IllegalStateException("Joining is in progress") }
@@ -398,54 +397,41 @@ internal open class ByteBufferChannel(
         return true
     }
 
-    internal fun tryTerminate(): Boolean {
-        if (closed == null || !tryReleaseBuffer(false)) {
-            return false
-        }
+    /**
+     * Try to change channel state to [ReadWriteBufferState.Terminated]. After that release the buffer.
+     *
+     * This operation requires cooperation: channel can be terminated only from [ReadWriteBufferState.IdleEmpty] states, so
+     * if the [closed] appeared after releasing `Reading` or `Writing` block, this operation should be called.
+     */
+    internal fun tryTerminate() {
+        if (closed == null || state === ReadWriteBufferState.Terminated) return
 
-        joining?.let { ensureClosedJoined(it) }
-
+        // If there are any operations, they should be resumed.
         resumeReadOp()
         resumeWriteOp()
-        return true
+        joining?.let { ensureClosedJoined(it) }
+
+        val cause = closed?.cause
+
+        // We also should make sure that there are no other operations before getting to the Terminate state.
+        check(cause != null || readOp == null)
+        check(writeOp == null)
+        check(joining == null)
+
+        _state.update { current ->
+            when {
+                current === ReadWriteBufferState.IdleEmpty -> ReadWriteBufferState.Terminated
+                cause != null && current is ReadWriteBufferState.IdleNonEmpty -> ReadWriteBufferState.Terminated
+                else -> return
+            }
+        }
+
+        // We can be here only if we terminated this channel.
+        releaseBuffer()
     }
 
-    private fun tryReleaseBuffer(forceTermination: Boolean): Boolean {
-        var toRelease: ReadWriteBufferState.Initial? = null
-
-        _state.update { state ->
-            toRelease?.let { buffer ->
-                toRelease = null
-                buffer.capacity.resetForWrite()
-                resumeWriteOp()
-            }
-            val closed = closed
-
-            when {
-                state === ReadWriteBufferState.Terminated -> return true
-                state === ReadWriteBufferState.IdleEmpty -> ReadWriteBufferState.Terminated
-                closed != null && state is ReadWriteBufferState.IdleNonEmpty &&
-                    (state.capacity.tryLockForRelease() || closed.cause != null) -> {
-                    if (closed.cause != null) state.capacity.forceLockForRelease()
-                    toRelease = state.initial
-                    ReadWriteBufferState.Terminated
-                }
-                forceTermination && state is ReadWriteBufferState.IdleNonEmpty &&
-                    state.capacity.tryLockForRelease() -> {
-                    toRelease = state.initial
-                    ReadWriteBufferState.Terminated
-                }
-                else -> return false
-            }
-        }
-
-        toRelease?.let { buffer ->
-            if (state === ReadWriteBufferState.Terminated) {
-                releaseBuffer(buffer)
-            }
-        }
-
-        return true
+    private fun releaseBuffer() {
+        state.capacity.resetForWrite()
     }
 
     private fun ByteBuffer.carryIndex(idx: Int): Int =
@@ -2135,7 +2121,7 @@ internal open class ByteBufferChannel(
 
         do {
             closedCause?.let { rethrowClosed(it) }
-            remaining -= readAvailableChunkTo(this@buildPacket, remaining.toInt())
+            remaining -= readAvailableChunkTo(this@buildPacket, remaining)
         } while (remaining > 0L && !isClosedForRead)
 
         closedCause?.let { rethrowClosed(it) }
@@ -2149,16 +2135,16 @@ internal open class ByteBufferChannel(
 
         do {
             closedCause?.let { rethrowClosed(it) }
-            remaining -= readAvailableChunkTo(this@buildPacket, remaining.toInt())
+            remaining -= readAvailableChunkTo(this@buildPacket, remaining)
             readSuspend(1)
         } while (remaining > 0L && !isClosedForRead)
 
         closedCause?.let { rethrowClosed(it) }
     }
 
-    private fun readAvailableChunkTo(output: BytePacketBuilder, limit: Int): Int = output.write(1) { buffer ->
+    private fun readAvailableChunkTo(output: BytePacketBuilder, limit: Long): Int = output.write(1) { buffer ->
         if (buffer.writeRemaining.toLong() > limit) {
-            buffer.resetForWrite(limit)
+            buffer.resetForWrite(limit.toInt())
         }
 
         readAsMuchAsPossible(buffer)

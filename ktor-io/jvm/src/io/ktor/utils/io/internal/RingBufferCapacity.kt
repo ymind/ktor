@@ -1,5 +1,6 @@
 package io.ktor.utils.io.internal
 
+import io.ktor.utils.io.debug.*
 import kotlinx.atomicfu.*
 
 @Suppress("LocalVariableName")
@@ -92,7 +93,9 @@ internal class RingBufferCapacity(private val totalCapacity: Int) {
     fun completeRead(n: Int) {
         _availableForWrite.update { remaining ->
             val update = remaining + n
-            if (update > totalCapacity) completeReadOverflow(remaining, update, n)
+            if (update > totalCapacity) {
+                completeReadOverflow(remaining, update, n)
+            }
             update
         }
     }

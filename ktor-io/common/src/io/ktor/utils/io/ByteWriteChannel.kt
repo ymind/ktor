@@ -178,21 +178,11 @@ public fun ByteWriteChannel.close(): Boolean = close(null)
 
 public suspend fun ByteWriteChannel.writeStringUtf8(s: CharSequence) {
     val packet = buildPacket {
-        writeStringUtf8(s)
+        writeText(s)
     }
 
     return writePacket(packet)
 }
-
-/*
-TODO
-public suspend fun ByteWriteChannel.writeStringUtf8(s: CharBuffer) {
-    val packet = buildPacket {
-        writeStringUtf8(s)
-    }
-
-    return writePacket(packet)
-}*/
 
 public suspend fun ByteWriteChannel.writeStringUtf8(s: String) {
     val packet = buildPacket {
@@ -210,15 +200,15 @@ public suspend fun ByteWriteChannel.writeBoolean(b: Boolean) {
  * Writes UTF16 character
  */
 public suspend fun ByteWriteChannel.writeChar(ch: Char) {
-    return writeShort(ch.toInt())
+    writeShort(ch.toInt())
 }
 
 public suspend inline fun ByteWriteChannel.writePacket(headerSizeHint: Int = 0, builder: BytePacketBuilder.() -> Unit) {
-    return writePacket(buildPacket(headerSizeHint, builder))
+    writePacket(buildPacket(headerSizeHint, builder))
 }
 
 public suspend fun ByteWriteChannel.writePacketSuspend(builder: suspend BytePacketBuilder.() -> Unit) {
-    return writePacket(buildPacket { builder() })
+    writePacket(buildPacket { builder() })
 }
 
 /**
