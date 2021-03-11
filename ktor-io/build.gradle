@@ -31,9 +31,6 @@ kotlin.sourceSets {
     }
 }
 
-kotlin.sourceSets.commonMain.dependencies {
-    api "org.jetbrains.kotlinx:kotlinx-serialization-json:$serialization_version"
-}
 
 if (!project.ext.ideaActive) {
     apply from: "$rootDir/gradle/interop-as-source-set-klib.gradle"
@@ -42,3 +39,4 @@ if (!project.ext.ideaActive) {
         registerInteropAsSourceSetOutput("sockets", kotlin.sourceSets.socketsMain)
     }
 }
+
