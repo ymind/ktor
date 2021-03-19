@@ -376,6 +376,23 @@ class ApplicationEngineEnvironmentReloadingTests {
         environment.stop()
     }
 
+    @Test
+    fun `reload lambda module`() {
+        val environment = applicationEngineEnvironment {
+            module {
+            }
+        } as ApplicationEngineEnvironmentReloading
+
+        environment.start()
+
+        assertEquals(
+            "io.ktor.tests.hosts.ApplicationEngineEnvironmentReloadingTests\$reload lambda module\$environment\$1\$1.invoke",
+            environment.modulesNames.first()
+        )
+
+        environment.stop()
+    }
+
     object NoArgModuleFunction {
         var result = 0
 

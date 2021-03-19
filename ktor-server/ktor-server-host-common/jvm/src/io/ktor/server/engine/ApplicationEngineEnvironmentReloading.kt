@@ -70,7 +70,7 @@ public class ApplicationEngineEnvironmentReloading(
         config.propertyOrNull("ktor.application.modules")?.getList() ?: emptyList()
     }
 
-    private val modulesNames: List<String> = configModulesNames + modules.map { it.methodName() }
+    internal val modulesNames: List<String> = configModulesNames + modules.map { it.methodName() }
 
     private val watcher by lazy { FileSystems.getDefault().newWatchService() }
 
